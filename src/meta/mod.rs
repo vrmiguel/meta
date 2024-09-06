@@ -125,6 +125,10 @@ pub struct Postgres {
     version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     with: Option<Vec<String>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents the name of a build pipeline under `pipeline` in
@@ -234,6 +238,10 @@ pub struct Resources {
     support: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     badges: Option<Vec<Badge>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the artifacts in the array under `artifacts` in [`Meta`].

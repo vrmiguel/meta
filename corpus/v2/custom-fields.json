@@ -1,0 +1,32 @@
+{
+  "name": "widget",
+  "abstract": "Widget for PostgreSQL",
+  "description": "¿A widget is just thing thing, yoŭ know?",
+  "version": "0.2.5",
+  "maintainers": [
+    {
+      "name": "David E. Wheeler",
+      "email": "david@justatheory.com"
+    }
+  ],
+  "license": "PostgreSQL",
+  "contents": {
+    "extensions": {
+      "pair": {
+        "sql": "sql/widget.sql",
+        "control": "widget.control"
+      }
+    }
+  },
+  "resources": {
+    "homepage": "http://widget.example.org/",
+    "x_support_email": "widget@example.org"
+  },
+  "dependencies": {
+    "postgres": {
+      "version": "14.0",
+      "X_RELEASE": "REL_14_BETA3"
+    }
+  },
+  "meta-spec": { "version": "2.0.0" }
+}
