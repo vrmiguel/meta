@@ -2,7 +2,7 @@ use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
 
 use relative_path::RelativePathBuf;
 use semver::Version;
-use serde::{Deserialize, Serialize};
+use serde::{de::MapAccess, ser::SerializeMap, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 
 mod v1;
@@ -38,6 +38,10 @@ pub struct Extension {
     sql: RelativePathBuf,
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines a type of module in [`Module`].
@@ -272,6 +276,67 @@ pub struct Meta {
     resources: Option<Resources>,
     #[serde(skip_serializing_if = "Option::is_none")]
     artifacts: Option<Vec<Artifact>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
+}
+
+/// Deserializes extra fields starting with `X_` or `x_` into the `custom_properties` HashMap.
+pub fn deserialize_custom_properties<'de, D>(
+    deserializer: D,
+) -> Result<HashMap<String, Value>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    struct CustomVisitor;
+
+    impl<'de> serde::de::Visitor<'de> for CustomVisitor {
+        type Value = HashMap<String, Value>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a map with string keys")
+        }
+
+        fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+        where
+            M: MapAccess<'de>,
+        {
+            let mut map = HashMap::new();
+
+            while let Some((key, value)) = access.next_entry::<String, _>()? {
+                if let Some(key) = key.strip_prefix("x_").or(key.strip_prefix("X_")) {
+                    map.insert(key.to_string(), value);
+                }
+            }
+
+            Ok(map)
+        }
+    }
+
+    deserializer.deserialize_map(CustomVisitor)
+}
+
+/// Serializes the `custom_properties` HashMap into fields starting with `X_` or `x_`
+pub fn serialize_custom_properties<S>(
+    custom_props: &HashMap<String, Value>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut map = serializer.serialize_map(Some(custom_props.len()))?;
+    for (key, value) in custom_props {
+        let is_uppercase = key.chars().next().map(char::is_uppercase).unwrap_or(false);
+
+        if is_uppercase {
+            map.serialize_entry(&format_args!("X_{key}"), value)?;
+        } else {
+            map.serialize_entry(&format_args!("x_{key}"), value)?;
+        }
+    }
+
+    map.end()
 }
 
 impl Meta {
