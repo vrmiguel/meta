@@ -24,6 +24,10 @@ pub struct Maintainer {
     email: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Describes an extension in under `extensions` in [`Contents`].
@@ -77,6 +81,10 @@ pub struct Module {
     lib: RelativePathBuf,
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents an app under `apps` in [`Contents`].
@@ -212,6 +220,10 @@ pub struct Dependencies {
     packages: Option<Packages>,
     #[serde(skip_serializing_if = "Option::is_none")]
     variations: Option<Vec<Variations>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the badges under `badges` in [`Resources`].
@@ -221,6 +233,10 @@ pub struct Badge {
     alt: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the resources under `resources` in [`Meta`].

@@ -16,17 +16,34 @@
         "sql": "sql/widget.sql",
         "control": "widget.control"
       }
+    },
+    "modules": {
+      "examples": {
+        "type": "extension",
+        "lib": "target/release/example",
+        "preload": "server",
+        "x_is_c_only": false
+      }
     }
   },
   "resources": {
     "homepage": "http://widget.example.org/",
-    "x_support_email": "widget@example.org"
+    "x_support_email": "widget@example.org",
+    "badges": [
+      {
+        "alt": "CI Status",
+        "src": "https://github.com/example/pg-widget/actions/workflows/ci.yml/badge.svg",
+        "url": "https://github.com/example/pg-widget/actions/workflows/ci.yml",
+        "x_updated_every": "1h"
+      }
+    ]
   },
   "dependencies": {
     "postgres": {
       "version": "14.0",
       "X_RELEASE": "REL_14_BETA3"
-    }
+    },
+    "x_forbid_unsafe": true
   },
   "meta-spec": { "version": "2.0.0" }
 }
