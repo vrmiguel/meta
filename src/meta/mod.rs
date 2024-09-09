@@ -115,6 +115,10 @@ pub struct Contents {
     modules: Option<HashMap<String, Module>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     apps: Option<HashMap<String, App>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents the classifications of a distribution, under `classifications`
@@ -125,6 +129,10 @@ pub struct Classifications {
     tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     categories: Option<Vec<String>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents Postgres requirements under `postgres` in [`Dependencies`].
@@ -197,6 +205,10 @@ pub struct Packages {
     run: Option<Phase>,
     #[serde(skip_serializing_if = "Option::is_none")]
     develop: Option<Phase>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>
 }
 
 /// Defines dependency variations under `variations`in  [`Dependencies`].
