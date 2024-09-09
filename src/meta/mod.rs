@@ -104,6 +104,10 @@ pub struct App {
     man: Option<RelativePathBuf>,
     #[serde(skip_serializing_if = "Option::is_none")]
     html: Option<RelativePathBuf>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents the contents of a distribution, under `contents` in [`Meta`].
@@ -189,6 +193,10 @@ pub struct Phase {
     suggests: Option<HashMap<String, VersionRange>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     conflicts: Option<HashMap<String, VersionRange>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>
 }
 
 /// Defines package dependencies for build phases under `packages` in
@@ -217,6 +225,10 @@ pub struct Variations {
     #[serde(rename = "where")]
     wheres: Box<Dependencies>,
     dependencies: Box<Dependencies>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>
 }
 
 /// Defines the distribution dependencies under `dependencies` in [`Meta`].
@@ -284,6 +296,10 @@ pub struct Artifact {
     sha256: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sha512: Option<String>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents a complete PGXN Meta definition.
