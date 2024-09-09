@@ -65,6 +65,13 @@
         },
         "dependencies": {
           "packages": {
+            "build": {
+              "x_early": true,
+              "requires": {
+                "pkg:generic/awk": 0,
+                "pkg:generic/perl": "5.20"
+              }
+            },
             "run": {
               "recommends": {
                 "pkg:pypi/widgets": 0
