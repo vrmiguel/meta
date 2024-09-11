@@ -2,7 +2,7 @@ use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
 
 use relative_path::RelativePathBuf;
 use semver::Version;
-use serde::{de::MapAccess, ser::SerializeMap, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{ser::SerializeMap, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 
 mod v1;
@@ -196,7 +196,7 @@ pub struct Phase {
     #[serde(flatten)]
     #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
-    custom_props: HashMap<String, Value>
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines package dependencies for build phases under `packages` in
@@ -216,7 +216,7 @@ pub struct Packages {
     #[serde(flatten)]
     #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
-    custom_props: HashMap<String, Value>
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines dependency variations under `variations`in  [`Dependencies`].
@@ -228,7 +228,7 @@ pub struct Variations {
     #[serde(flatten)]
     #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
-    custom_props: HashMap<String, Value>
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the distribution dependencies under `dependencies` in [`Meta`].
@@ -341,32 +341,16 @@ pub fn deserialize_custom_properties<'de, D>(
 where
     D: Deserializer<'de>,
 {
-    struct CustomVisitor;
+    let map: HashMap<String, Value> = HashMap::deserialize(deserializer)?;
 
-    impl<'de> serde::de::Visitor<'de> for CustomVisitor {
-        type Value = HashMap<String, Value>;
-
-        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-            formatter.write_str("a map with string keys")
-        }
-
-        fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
-        where
-            M: MapAccess<'de>,
-        {
-            let mut map = HashMap::new();
-
-            while let Some((key, value)) = access.next_entry::<String, _>()? {
-                if let Some(key) = key.strip_prefix("x_").or(key.strip_prefix("X_")) {
-                    map.insert(key.to_string(), value);
-                }
-            }
-
-            Ok(map)
-        }
-    }
-
-    deserializer.deserialize_map(CustomVisitor)
+    Ok(map
+        .into_iter()
+        .filter_map(|(key, value)| {
+            key.strip_prefix("x_")
+                .or(key.strip_prefix("X_"))
+                .map(|key| (key.to_string(), value))
+        })
+        .collect())
 }
 
 /// Serializes the `custom_properties` HashMap into fields starting with `X_` or `x_`
